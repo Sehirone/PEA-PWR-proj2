@@ -37,6 +37,23 @@ void tabuSearch::initRoute()
 }
 
 // *********************************************************************************************
+// Copies one solution into another
+// *********************************************************************************************
+void tabuSearch::copySolution(int * from, int * to)
+{
+	for (int i = 0; i < cities.getNodesNumber(); i++) {
+		to[i] = from[i];
+	}
+}
+
+void tabuSearch::swapElements(int * route, int i, int j)
+{
+	int temp = route[i];
+	route[i] = route[j];
+	route[j] = temp;
+}
+
+// *********************************************************************************************
 // Calculates length of a given route
 // *********************************************************************************************
 int tabuSearch::calculateRouteLength(int * route)
@@ -107,4 +124,81 @@ void tabuSearch::Solve()
 		return;
 	}
 	initRoute();
+
+	int repetitions = 500;
+	int repetitionsTillTabuRemoval = 20;
+	int aspirationValue = -10;
+	int aspirationPlus = false;
+	int aspirationCounter = 0;
+	int maxAspirationCount = 10;
+
+	// Initialize tabu list
+	int **tabuList = new int *[cities.getNodesNumber()];
+	for (int i = 0; i < cities.getNodesNumber(); i++) {
+		tabuList[i] = new int[cities.getNodesNumber()];
+		for (int j = 0; j < cities.getNodesNumber(); j++) {
+			tabuList[i][j] = 0;
+		}
+	}
+
+	int *currentRoute = new int[cities.getNodesNumber()];
+	copySolution(shortestRoute, currentRoute);
+
+	int *tempRoute = new int[cities.getNodesNumber()];
+	int tempShortestValue = shortestRouteValue;
+	int bestSwapFrom, bestSwapTo, bestSwapValue;
+
+	while (repetitions--) {
+		// looking for best neighbour
+		bestSwapValue = INT_MAX;
+		aspirationPlus = false;
+		for (int i = 1; i < cities.getNodesNumber(); i++) {
+			for (int j = i + 1; j < cities.getNodesNumber(); j++) {
+				copySolution(currentRoute, tempRoute);
+				swapElements(tempRoute, i, j);
+				int diff = calculateRouteLength(tempRoute) - calculateRouteLength(currentRoute);
+				// sets new values if: found new best value that's not on tabu list || aspiration criterium's met(route shorter than the shortest one)
+				if (((diff < bestSwapValue) && tabuList[i][j] == 0) || diff < aspirationValue) {
+					bestSwapValue = diff;
+					bestSwapFrom = i;
+					bestSwapTo = j;
+					if (diff < aspirationValue) {
+						aspirationPlus = true;
+						aspirationCounter = 0;
+					}
+				}
+				aspirationCounter++;
+				if (aspirationCounter == maxAspirationCount && aspirationPlus) {
+					goto aspHappend;
+				}
+			}
+		}
+
+aspHappend:
+		// decrement tabuList
+		for (int i = 0; i < cities.getNodesNumber(); i++) {
+			for (int j = 0; j < cities.getNodesNumber(); j++) {
+				if (tabuList[i][j] > 0) {
+					tabuList[i][j]--;
+				}
+			}
+		}
+
+		// set best neighbour as current road and add swap to tabu
+		swapElements(currentRoute, bestSwapFrom, bestSwapTo);
+		tabuList[bestSwapFrom][bestSwapTo] = repetitionsTillTabuRemoval;
+		tabuList[bestSwapTo][bestSwapFrom] = repetitionsTillTabuRemoval;
+
+		// set new best value if one's found
+		if (calculateRouteLength(currentRoute) < shortestRouteValue) {
+			swapElements(shortestRoute, bestSwapFrom, bestSwapTo);
+			shortestRouteValue = calculateRouteLength(shortestRoute);
+		}
+	}
+
+	// CleanUp tabuList
+	for (int i = 0; i < cities.getNodesNumber(); i++) {
+		delete[] tabuList[i];
+	}
+	delete[] tabuList;
 }
