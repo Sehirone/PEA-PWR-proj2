@@ -46,6 +46,9 @@ void tabuSearch::copySolution(int * from, int * to)
 	}
 }
 
+// *********************************************************************************************
+// Swaps two elements in an array
+// *********************************************************************************************
 void tabuSearch::swapElements(int * route, int i, int j)
 {
 	int temp = route[i];
@@ -118,7 +121,7 @@ int tabuSearch::getShortestRouteValue()
 // *********************************************************************************************
 // Where the Magic takes place, solves TSP using tabuSearch
 // *********************************************************************************************
-void tabuSearch::Solve(int repetitions, int repetitionsTillTabuRemoval, int aspirationValue)
+void tabuSearch::solve(int repetitions, int repetitionsTillTabuRemoval, int aspirationValue)
 {
 	if (cities.isEmpty()) {
 		return;
