@@ -118,16 +118,13 @@ int tabuSearch::getShortestRouteValue()
 // *********************************************************************************************
 // Where the Magic takes place, solves TSP using tabuSearch
 // *********************************************************************************************
-void tabuSearch::Solve()
+void tabuSearch::Solve(int repetitions, int repetitionsTillTabuRemoval, int aspirationValue)
 {
 	if (cities.isEmpty()) {
 		return;
 	}
 	initRoute();
 
-	int repetitions = 500;
-	int repetitionsTillTabuRemoval = 20;
-	int aspirationValue = -10;
 	int aspirationPlus = false;
 	int aspirationCounter = 0;
 	int maxAspirationCount = 10;
