@@ -19,6 +19,6 @@ public:
 	int setSource(string filename);
 	string getShortestRoute();
 	int getShortestRouteValue();
-	void solve(int repetitions = 500, int repetitionsTillTabuRemoval = 10, int aspirationValue = -10);
+	void solve(int repetitions = 200, int repetitionsTillTabuRemoval = 10, int aspirationValue = -10);
 };
 
