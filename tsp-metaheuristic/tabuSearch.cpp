@@ -201,4 +201,6 @@ aspHappend:
 		delete[] tabuList[i];
 	}
 	delete[] tabuList;
+	delete[] currentRoute;
+	delete[] tempRoute;
 }

@@ -2,14 +2,16 @@
 #include "simmulatedAnnealing.h"
 #include "AdjacencyMatrix.h"
 #include <iostream>
+#include <random>
+#include <math.h>
 
 // *********************************************************************************************
-// Empty constructor
+// Random device init
 // *********************************************************************************************
 simmulatedAnnealing::simmulatedAnnealing()
 {
+	rng.seed(std::random_device()());
 }
-
 
 // *********************************************************************************************
 // Destructor, clears memory
@@ -99,6 +101,31 @@ string simmulatedAnnealing::getShortestRoute()
 }
 
 // *********************************************************************************************
+// Copies one solution into another
+// *********************************************************************************************
+void simmulatedAnnealing::copySolution(int * from, int * to)
+{
+	for (int i = 0; i < cities.getNodesNumber(); i++) {
+		to[i] = from[i];
+	}
+}
+
+// *********************************************************************************************
+// inverts elements between i and j
+// *********************************************************************************************
+void simmulatedAnnealing::invertElements(int * route, int i, int j)
+{
+	//int temp = route[i];
+	//route[i] = route[j];
+	//route[j] = temp;
+	for (; i < j; i++, j--) {
+		int temp = route[j];
+		route[j] = route[i];
+		route[i] = temp;
+	}
+}
+
+// *********************************************************************************************
 // Where the Magic takes place, solves TSP using simmulated annealing
 // *********************************************************************************************
 void simmulatedAnnealing::solve() {
@@ -106,4 +133,59 @@ void simmulatedAnnealing::solve() {
 		return;
 	}
 	initRoute();
+
+	double temperature = shortestRouteValue / cities.getNodesNumber() * cities.getNodesNumber();
+	double coolingValue = 0.9999;
+	int maxIterations = pow(cities.getNodesNumber(), 4);
+	int iterationWithoutChange = 0;
+	int maxIterationWithoutChange = maxIterations/1000;
+	std::uniform_int_distribution<std::mt19937::result_type> distNode(1, cities.getNodesNumber() - 1);
+	std::uniform_real_distribution<double> distProb(0.0, 1.0);
+
+	int * newRoute = new int[cities.getNodesNumber()];
+	int * bestRoute = new int[cities.getNodesNumber()];
+	int bestRouteValue = shortestRouteValue;
+	copySolution(shortestRoute, bestRoute);
+
+	
+	while (maxIterations-- && iterationWithoutChange < maxIterationWithoutChange && temperature > 0.5) {
+		copySolution(bestRoute, newRoute);
+		// picking a new solution and getting its routeValue
+		int swapFrom = distNode(rng);
+		int swapTo = distNode(rng);
+		while (swapTo == swapFrom) {
+			swapTo = distNode(rng);
+		}
+		invertElements(newRoute, swapFrom, swapTo);
+		int newRouteValue = calculateRouteLength(newRoute);
+
+		//if newRouteValue is shorter than actual shortestRoute, set new shortest route
+		if (newRouteValue < bestRouteValue) {
+			bestRouteValue = newRouteValue;
+			copySolution(newRoute, shortestRoute);
+			iterationWithoutChange = 0;
+		}
+		else {
+			int diff = bestRouteValue - newRouteValue;
+			double prob = exp(diff / temperature);
+			if (distProb(rng) <= prob) {
+				bestRouteValue = newRouteValue;
+				copySolution(newRoute, shortestRoute);
+				iterationWithoutChange = 0;
+			}
+			else {
+				iterationWithoutChange++;
+			}
+		}
+		// cooling down
+		temperature *= coolingValue;
+		// remember best route
+		if (bestRouteValue < shortestRouteValue) {
+			copySolution(bestRoute, shortestRoute);
+			shortestRouteValue = bestRouteValue;
+		}
+	}
+
+	delete[] newRoute;
+	delete[] bestRoute;
 }
