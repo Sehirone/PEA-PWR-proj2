@@ -45,7 +45,8 @@ int AdjacencyMatrix::generateFromFile(string filename)
 		for (int j = 0; j < n; j++) {
 			int temp;
 			input >> temp;
-			matrixPtr[i][j] = temp == 0 ? INT_MAX : temp;
+			matrixPtr[i][j] = temp;
+			if (i == j) matrixPtr[i][j] = INT_MAX;
 		}
 	}
 

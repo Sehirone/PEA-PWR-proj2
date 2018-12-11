@@ -20,6 +20,7 @@ public:
 	~simmulatedAnnealing();
 
 	int setSource(string filename);
+	string printSource();
 
 	string getShortestRoute();
 	int getShortestRouteValue();

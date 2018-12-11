@@ -31,6 +31,11 @@ int simmulatedAnnealing::setSource(string filename)
 	return cities.generateFromFile(filename);
 }
 
+string simmulatedAnnealing::printSource()
+{
+	return cities.printStruct();
+}
+
 // *********************************************************************************************
 // Initializes shortestRoute and shortestRouteValue using greedy aproach treating startNode as 0
 // *********************************************************************************************
@@ -136,11 +141,12 @@ void simmulatedAnnealing::solve() {
 
 	double temperature = shortestRouteValue / cities.getNodesNumber() * cities.getNodesNumber();
 	double coolingValue = 0.9999;
-	int maxIterations = pow(cities.getNodesNumber(), 4);
-	int iterationWithoutChange = 0;
-	int maxIterationWithoutChange = maxIterations/1000;
+	long long maxIterations = pow(cities.getNodesNumber(), 4);
+	long long iterationWithoutChange = 0;
+	long long maxIterationWithoutChange = maxIterations/1000;
 	std::uniform_int_distribution<std::mt19937::result_type> distNode(1, cities.getNodesNumber() - 1);
 	std::uniform_real_distribution<double> distProb(0.0, 1.0);
+	cout << temperature << '\t' << maxIterations << '\t' << maxIterationWithoutChange << endl;
 
 	int * newRoute = new int[cities.getNodesNumber()];
 	int * bestRoute = new int[cities.getNodesNumber()];
@@ -185,7 +191,7 @@ void simmulatedAnnealing::solve() {
 			shortestRouteValue = bestRouteValue;
 		}
 	}
-
+	cout << temperature << '\t' << maxIterations << '\t' << maxIterationWithoutChange << '\t' << iterationWithoutChange << endl;
 	delete[] newRoute;
 	delete[] bestRoute;
 }

@@ -94,6 +94,11 @@ int tabuSearch::setSource(string filename)
 	return cities.generateFromFile(filename);
 }
 
+string tabuSearch::printSource()
+{
+	return cities.printStruct();
+}
+
 // *********************************************************************************************
 // Prints stored shortest route
 // *********************************************************************************************

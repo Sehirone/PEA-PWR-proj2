@@ -17,6 +17,8 @@ public:
 	~tabuSearch();
 
 	int setSource(string filename);
+	string printSource();
+
 	string getShortestRoute();
 	int getShortestRouteValue();
 	void solve(int repetitions = 200, int repetitionsTillTabuRemoval = 10, int aspirationValue = -10);
